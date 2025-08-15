@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* 1) Reset and global */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+:root {
+  /* Dark mode (iOS inspired) */
+  --dark-bg-primary: #1C1C1E;
+  --dark-bg-secondary: #2C2C2E;
+  --dark-text-primary: #FFFFFF;
+  --dark-text-secondary: #E5E5E7;
+  --dark-border: #48484A;
+  --dark-accent-blue: #0A84FF;
+  --dark-accent-green: #30D158;
+  --dark-accent-red: #FF453A;
+  --dark-accent-yellow: #FFD60A;
+
+  /* Light mode */
+  --light-bg-primary: #F2F2F7;
+  --light-bg-secondary: #FFFFFF;
+  --light-text-primary: #000000;
+  --light-text-secondary: #8E8E93;
+  --light-border: #C6C6C8;
+  --light-accent-blue: #007AFF;
+  --light-accent-green: #34C759;
+  --light-accent-red: #FF3B30;
+  --light-accent-yellow: #FFCC00;
+}
+
+/* 2) Viewport + background control */
+html, body, #root { height: 100%; width: 100%; }
+html, body { margin: 0; overflow-x: hidden; }
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Force full-page background to tokens (no white anywhere) */
+body.dark { background-color: var(--dark-bg-primary) !important; color: var(--dark-text-primary); }
+body.light { background-color: var(--light-bg-primary) !important; color: var(--light-text-primary); }
+
+/* Make root inherit the body background to avoid any mismatch */
+#root { background: inherit; isolation: isolate; }
+
+/* Charts should never paint white */
+canvas, svg { background: transparent !important; }
+
+/* 3) Cards and subtle hover motion */
+.card {
+  background-color: var(--dark-bg-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  transform: translateY(0);
+}
+body.light .card {
+  background-color: var(--light-bg-secondary);
+  border: 1px solid var(--light-border);
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* 4) Gradient heading */
+.gradient-text {
+  background-image: linear-gradient(90deg, #0A84FF, #64D2FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 5) Status pills (exact labels) */
+.pill {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 800;
+  color: #fff;
+}
+.status-Ready { background-color: var(--dark-accent-green); color: #fff; }
+.status-On-Call { background-color: var(--dark-accent-blue); color: #fff; }
+.status-Post-Call-Work { background-color: #FF9F0A; color: #fff; }
+.status-Break { background-color: var(--dark-accent-yellow); color: #111; }
+.status-Lunch { background-color: var(--dark-accent-red); color: #fff; }
+.status-Offline { background-color: #5856D6; color: #fff; }
+.status-Training { background-color: #A2845E; color: #fff; }
+.status-Away { background-color: #8E8E93; color: #111; }
+body.light .status-Ready { background-color: var(--light-accent-green); }
+body.light .status-On-Call { background-color: var(--light-accent-blue); }
+body.light .status-Break { background-color: var(--light-accent-yellow); color: #111; }
+body.light .status-Lunch { background-color: var(--light-accent-red); }
+
+/* 6) Status buttons (container buttons that hold a pill) */
+.status-btn {
+  border: 1px solid var(--dark-border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: var(--dark-text-primary);
+  background: var(--dark-bg-secondary);
+  transition: all .2s ease;
+}
+body.light .status-btn {
+  color: var(--light-text-primary);
+  border-color: var(--light-border);
+  background: var(--light-bg-secondary);
+}
+.status-btn:hover:not(:disabled) { transform: translateY(-1px) scale(1.02); }
+
+/* 7) iOS-like toggle switch */
+.toggle-switch {
+  width: 48px; height: 28px; background-color: var(--dark-border);
+  border-radius: 14px; position: relative; cursor: pointer; transition: background-color .3s;
+}
+.toggle-switch.toggled { background-color: #007AFF; }
+.toggle-switch-handle {
+  width: 24px; height: 24px; background-color: white; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px; transition: transform .3s, background-color .3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.toggle-switch.toggled .toggle-switch-handle { transform: translateX(20px); }
+
+/* 8) Bell badge helper */
+.bell-btn { position: relative; }
+.bell-badge {
+  position: absolute; top: -4px; right: -4px; background: #ef4444; color: white;
+  font-size: 10px; padding: 2px 6px; border-radius: 9999px;
+}
+
+/* 9) Sticky filters */
+.sticky-filters { position: sticky; top: 8px; z-index: 40; backdrop-filter: blur(6px); }
+
+/* 10) Small utilities */
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.btn-reset { border: 0; background: transparent; color: #9CA3AF; cursor: pointer; }
+.btn-reset:hover { color: #ef4444; }
+
+/* Elegant rounded scrollbar for scrollable panes (dark + light) */
+.nice-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.35) transparent; /* thumb, track */
+  scrollbar-gutter: stable; /* no layout shift when scrollbar appears */
+}
+body.light .nice-scroll {
+  scrollbar-color: rgba(0,0,0,0.35) transparent;
+}
+
+/* Chrome/Edge/Safari */
+.nice-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.nice-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+}
+body.light .nice-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+}
+.nice-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;  /* gives that inset/rounded look */
+  background-clip: padding-box;
+}
+.nice-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+body.light .nice-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 2px solid transparent;
+}
+body.light .nice-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.nice-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Optional ghost chip class if you want to reuse */
+.ghost-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--dark-border);
+  background: transparent;
+  font-weight: 700;
+  font-size: 14px;
+}
+body.light .ghost-chip { border-color: var(--light-border); }
+
+/* Auth hero animated orbs */
+.auth-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(30px);
+  opacity: 0.65;
+  mix-blend-mode: screen;
+  animation: float 14s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 280px; height: 280px;
+  left: 10%; top: 18%;
+  background: radial-gradient(closest-side, rgba(10,132,255,0.7), rgba(10,132,255,0.1));
+  animation-duration: 18s;
+}
+.orb-2 {
+  width: 360px; height: 360px;
+  right: 10%; bottom: 15%;
+  background: radial-gradient(closest-side, rgba(124,58,237,0.7), rgba(124,58,237,0.1));
+  animation-duration: 22s;
+}
+.orb-3 {
+  width: 220px; height: 220px;
+  left: 40%; bottom: 10%;
+  background: radial-gradient(closest-side, rgba(100,210,255,0.7), rgba(100,210,255,0.1));
+  animation-duration: 20s;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px) translateX(0px) scale(1); }
+  50%  { transform: translateY(-20px) translateX(10px) scale(1.05); }
+  100% { transform: translateY(0px) translateX(0px) scale(1); }
+}
+
+.auth-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,0.0), rgba(0,0,0,0.25));
+}
