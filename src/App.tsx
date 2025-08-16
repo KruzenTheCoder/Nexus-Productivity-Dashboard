@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ThemeProvider, CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { getTheme } from './theme';
@@ -100,7 +101,7 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
   }
 
   // Build current page content (no skeletons)
-  let content: JSX.Element = <></>;
+  let content: React.ReactNode = <></>;
 
   if (isAuthenticated) {
     if (route.view === 'wallboard') {

@@ -232,9 +232,9 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
 
   // The new patch to handle directory updates
   React.useEffect(() => {
-    const handler = () => {
+    const handler = async () => {
       try {
-        const { findAgent } = require('./directory');
+        const { findAgent } = await import('./directory');
         const dirAgent = findAgent(agent.id);
         if (dirAgent) {
           setAgent((prev) => ({
