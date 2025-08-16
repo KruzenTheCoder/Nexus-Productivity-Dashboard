@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ThemeProvider, CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { getTheme } from './theme';
 import './ui/tokens.css';
@@ -32,12 +31,11 @@ type View = 'login' | 'campaign' | 'teamLeader' | 'agent' | 'wallboard';
 
 function readRoute() {
   const sp = new URLSearchParams(window.location.search);
-  const view = (sp.get('view') as View) || 'agent';
-  return { view };
+  const view = sp.get('view') as View | null;
+  return { view: (view as View) || 'login' }; // default to login now
 }
 
 function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode: () => void }) {
-  const [route, setRoute] = useState(readRoute());
   const { isAuthenticated } = useAuth();
   const reduce = useMediaQuery('(prefers-reduced-motion: reduce)');
 
@@ -62,25 +60,26 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
   }, [isAuthenticated, reduce]);
 
   // Keep route in sync with URL
+  const [route, setRoute] = useState(readRoute());
   useEffect(() => {
     const onPop = () => setRoute(readRoute());
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  // Redirect unauthenticated users to login (but still allow explicit login route)
+  // Redirect unauthenticated users to login
   useEffect(() => {
     if (!isAuthenticated && route.view !== 'login') {
       const sp = new URLSearchParams(window.location.search);
       sp.set('view', 'login');
       const url = `${window.location.pathname}?${sp.toString()}`;
-      window.history.pushState({}, '', url);
+      window.history.replaceState({}, '', url);
       setRoute({ view: 'login' });
     }
   }, [isAuthenticated, route.view]);
 
-  // Exactly like before: if route=login, render the login page immediately
-  if (route.view === 'login') {
+  // Render login page if route=login or unauthenticated
+  if (route.view === 'login' || !isAuthenticated) {
     return (
       <>
         <AnimatePresence mode="wait">
@@ -100,7 +99,7 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
     );
   }
 
-  // Build current page content (no skeletons)
+  // Render authenticated pages
   let content: React.ReactNode = <></>;
 
   if (isAuthenticated) {
@@ -110,16 +109,18 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
       const wbId = sp.get('wbId') || '';
       content = (
         <WallboardsProvider>
-          <>
-            <WallboardNavBar mode={modeParam} wbId={wbId} />
-            {modeParam === 'list' ? (
-              <Box sx={{ mt: 3 }}><WallboardList /></Box>
-            ) : modeParam === 'edit' ? (
-              <Box sx={{ mt: 3 }}><WallboardBuilder wbId={wbId} /></Box>
-            ) : (
-              <WallboardViewer wbId={wbId} />
-            )}
-          </>
+          <WallboardNavBar mode={modeParam} wbId={wbId} />
+          {modeParam === 'list' ? (
+            <Box sx={{ mt: 3 }}>
+              <WallboardList />
+            </Box>
+          ) : modeParam === 'edit' ? (
+            <Box sx={{ mt: 3 }}>
+              <WallboardBuilder wbId={wbId} />
+            </Box>
+          ) : (
+            <WallboardViewer wbId={wbId} />
+          )}
         </WallboardsProvider>
       );
     } else if (route.view === 'campaign') {
@@ -139,7 +140,7 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
         </TeamProvider>
       );
     } else {
-      // Agent (default)
+      // Agent dashboard
       content = (
         <AgentProvider>
           <HeaderClassic mode={mode} onToggleMode={onToggleMode} />
@@ -155,7 +156,6 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
 
   return (
     <>
-      {/* Page fade-through transition */}
       <AnimatePresence mode="wait">
         <Box
           key={route.view}
@@ -168,8 +168,6 @@ function AppInner({ mode, onToggleMode }: { mode: 'light' | 'dark'; onToggleMode
           {content}
         </Box>
       </AnimatePresence>
-
-      {/* Splash overlay (boot + post-login) */}
       <SplashScreen
         open={bootSplash || loginSplash}
         title="Nexus Dashboard"
